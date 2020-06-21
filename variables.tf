@@ -50,3 +50,9 @@ variable "zone_name" {
   default     = ""
   description = "The name of the desired Route53 Hosted Zone"
 }
+
+variable "provider" {
+  type = string
+  default = ""
+  description = "The provider to be used with in this modules"
+}

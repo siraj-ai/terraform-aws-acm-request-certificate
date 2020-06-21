@@ -4,7 +4,7 @@ resource "aws_acm_certificate" "default" {
   validation_method         = var.validation_method
   subject_alternative_names = var.subject_alternative_names
   tags                      = var.tags
-
+  provider                  = var.provider
   lifecycle {
     create_before_destroy = true
   }
@@ -20,6 +20,7 @@ data "aws_route53_zone" "default" {
   count        = local.process_domain_validation_options ? 1 : 0
   name         = "${local.zone_name}."
   private_zone = false
+  provider     = var.provider
 }
 
 resource "aws_route53_record" "default" {
@@ -30,10 +31,12 @@ resource "aws_route53_record" "default" {
   name            = lookup(local.domain_validation_options_list[count.index], "resource_record_name")
   type            = lookup(local.domain_validation_options_list[count.index], "resource_record_type")
   records         = [lookup(local.domain_validation_options_list[count.index], "resource_record_value")]
+  provider        = var.provider
 }
 
 resource "aws_acm_certificate_validation" "default" {
   count                   = local.process_domain_validation_options && var.wait_for_certificate_issued ? 1 : 0
   certificate_arn         = join("", aws_acm_certificate.default.*.arn)
   validation_record_fqdns = aws_route53_record.default.*.fqdn
+  provider                = var.provider
 }
